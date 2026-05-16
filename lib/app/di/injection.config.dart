@@ -50,6 +50,18 @@ import 'package:ryori/features/login/domain/repositories/login_repository.dart'
 import 'package:ryori/features/login/domain/usecases/post_login.dart' as _i1071;
 import 'package:ryori/features/login/presentation/viewmodels/login_view_model.dart'
     as _i883;
+import 'package:ryori/features/profile/data/datasources/profile_remote_data_source.dart'
+    as _i345;
+import 'package:ryori/features/profile/data/repositories/profile_repository.dart'
+    as _i175;
+import 'package:ryori/features/profile/domain/repositories/profile_repository.dart'
+    as _i259;
+import 'package:ryori/features/profile/domain/usecases/get_profile.dart'
+    as _i609;
+import 'package:ryori/features/profile/domain/usecases/post_logout.dart'
+    as _i234;
+import 'package:ryori/features/profile/presentation/viewmodels/profile_view_model.dart'
+    as _i221;
 import 'package:ryori/features/recipedetail/data/datasources/recipe_detail_local_data_source.dart'
     as _i394;
 import 'package:ryori/features/recipedetail/data/repositories/recipe_detail_repository.dart'
@@ -178,11 +190,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i726.UpdateRecipe>(
       () => _i726.UpdateRecipe(gh<_i691.EditRecipeRepository>()),
     );
+    gh.lazySingleton<_i345.ProfileRemoteDataSource>(
+      () => _i345.ProfileRemoteDataSource(
+        dio: gh<_i361.Dio>(instanceName: 'apiDio'),
+        appEnv: gh<_i220.AppEnv>(),
+      ),
+    );
     gh.factory<_i1073.GetRecipes>(
       () => _i1073.GetRecipes(gh<_i596.RecipesRepository>()),
     );
     gh.factory<_i847.PostRegister>(
       () => _i847.PostRegister(gh<_i964.RegisterRepository>()),
+    );
+    gh.lazySingleton<_i259.ProfileRepository>(
+      () => _i175.ProfileRepositoryImpl(
+        gh<_i345.ProfileRemoteDataSource>(),
+        gh<_i251.AuthRemoteDataSource>(),
+      ),
     );
     gh.factory<_i19.DeleteRecipe>(
       () => _i19.DeleteRecipe(gh<_i139.RecipeDetailRepository>()),
@@ -203,8 +227,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i535.PostRecipe>(
       () => _i535.PostRecipe(gh<_i7.AddRecipeRepository>()),
     );
+    gh.factory<_i609.GetProfile>(
+      () => _i609.GetProfile(gh<_i259.ProfileRepository>()),
+    );
+    gh.factory<_i234.PostLogout>(
+      () => _i234.PostLogout(gh<_i259.ProfileRepository>()),
+    );
     gh.factory<_i693.RecipesViewModel>(
       () => _i693.RecipesViewModel(gh<_i1073.GetRecipes>()),
+    );
+    gh.factory<_i221.ProfileViewModel>(
+      () => _i221.ProfileViewModel(
+        gh<_i609.GetProfile>(),
+        gh<_i234.PostLogout>(),
+        gh<_i181.AuthTokenStorage>(),
+      ),
     );
     gh.factory<_i824.RegisterViewModel>(
       () => _i824.RegisterViewModel(gh<_i847.PostRegister>()),

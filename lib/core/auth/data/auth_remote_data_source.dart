@@ -5,6 +5,7 @@ import 'package:ryori/core/auth/models/refresh_token_response_dto.dart';
 import 'package:ryori/core/env/app_env.dart';
 import 'package:ryori/features/login/data/models/requests/login_request_dto.dart';
 import 'package:ryori/features/login/data/models/responses/login_response_dto.dart';
+import 'package:ryori/features/profile/data/models/responses/logout_response_dto.dart';
 import 'package:ryori/features/register/data/models/requests/register_request_dto.dart';
 import 'package:ryori/features/register/data/models/responses/register_response_dto.dart';
 
@@ -88,5 +89,27 @@ class AuthRemoteDataSource {
     }
 
     return RefreshTokenResponseDto.fromJson(data);
+  }
+
+  Future<LogoutResponseDto> logout() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      _appEnv.authLogoutEndpoint,
+      options: Options(
+        extra: const {
+          'requiresAuth': false,
+        },
+      ),
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        error: 'Logout response body is empty.',
+      );
+    }
+
+    return LogoutResponseDto.fromJson(data);
   }
 }

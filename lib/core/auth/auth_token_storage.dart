@@ -28,6 +28,11 @@ class AuthTokenStorage {
     return _secureStorage.write(key: refreshTokenKey, value: token);
   }
 
+  Future<void> clearAuthData() async {
+    await _secureStorage.delete(key: accessTokenKey);
+    await _secureStorage.delete(key: refreshTokenKey);
+  }
+
   Future<bool> hasAccessToken() async {
     final token = await readAccessToken();
     return token != null && token.trim().isNotEmpty;

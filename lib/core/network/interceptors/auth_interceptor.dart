@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:ryori/core/auth/auth_session_expired_exception.dart';
 import 'package:ryori/core/auth/auth_token_storage.dart';
 import 'package:ryori/core/auth/data/auth_remote_data_source.dart';
 
@@ -54,6 +55,16 @@ class AuthInterceptor extends QueuedInterceptor {
         return;
       }
 
+      if (error is AuthSessionExpiredException) {
+        handler.reject(
+          DioException(
+            requestOptions: options,
+            error: error,
+          ),
+        );
+        return;
+      }
+
       handler.reject(
         DioException(
           requestOptions: options,
@@ -95,6 +106,17 @@ class AuthInterceptor extends QueuedInterceptor {
         return;
       }
 
+      if (error is AuthSessionExpiredException) {
+        handler.reject(
+          DioException(
+            requestOptions: requestOptions,
+            response: err.response,
+            error: error,
+          ),
+        );
+        return;
+      }
+
       handler.reject(
         DioException(
           requestOptions: requestOptions,
@@ -133,16 +155,25 @@ class AuthInterceptor extends QueuedInterceptor {
   Future<String> _performRefresh() async {
     final refreshToken = await _authTokenStorage.readRefreshToken();
     if (refreshToken == null || refreshToken.trim().isEmpty) {
-      throw DioException(
-        requestOptions: RequestOptions(path: '/auth/refresh'),
-        error: 'Refresh token is missing.',
+      throw const AuthSessionExpiredException(
+        'Refresh token is missing. Please login again.',
       );
     }
 
-    final response = await _authRemoteDataSource.refreshAccessToken(
-      refreshToken: refreshToken,
-    );
-    await _authTokenStorage.writeAccessToken(response.accessToken);
-    return response.accessToken;
+    try {
+      final response = await _authRemoteDataSource.refreshAccessToken(
+        refreshToken: refreshToken,
+      );
+      await _authTokenStorage.writeAccessToken(response.accessToken);
+      return response.accessToken;
+    } on DioException catch (error) {
+      throw AuthSessionExpiredException(
+        error.response?.data is Map<String, dynamic>
+            ? (error.response?.data as Map<String, dynamic>)['message']
+                    as String? ??
+                'Unable to refresh your session. Please login again.'
+            : 'Unable to refresh your session. Please login again.',
+      );
+    }
   }
 }
