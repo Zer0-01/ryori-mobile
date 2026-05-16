@@ -1,10 +1,10 @@
 import 'package:injectable/injectable.dart';
 import 'package:ryori/core/database/app_database.dart';
-import 'package:ryori/features/home/data/models/responses/recipes_response_dto.dart';
+import 'package:ryori/features/recipes/data/models/responses/recipes_response_dto.dart';
 
 @lazySingleton
-class HomeLocalDataSource {
-  HomeLocalDataSource(this._database);
+class RecipesQueryLocalDataSource {
+  RecipesQueryLocalDataSource(this._database);
 
   final AppDatabase _database;
 

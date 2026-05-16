@@ -4,28 +4,28 @@ import 'package:ryori/app/di/injection.dart';
 import 'package:ryori/core/logger/app_logger.dart';
 import 'package:ryori/features/addrecipe/data/models/responses/type_response_dto.dart';
 import 'package:ryori/features/addrecipe/domain/usecases/get_type.dart';
-import 'package:ryori/features/home/data/models/responses/recipes_response_dto.dart';
-import 'package:ryori/features/home/domain/usecases/get_recipes.dart';
+import 'package:ryori/features/recipes/data/models/responses/recipes_response_dto.dart';
+import 'package:ryori/features/recipes/domain/usecases/get_recipes.dart';
 
 enum GetRecipesStatus { initial, loading, success, failure }
 
-enum GetHomeTypesStatus { initial, loading, success, failure }
+enum GetRecipeTypesStatus { initial, loading, success, failure }
 
 @injectable
-class HomeViewModel extends ChangeNotifier {
-  HomeViewModel(this.getRecipes) {
+class RecipesViewModel extends ChangeNotifier {
+  RecipesViewModel(this.getRecipes) {
     init();
   }
 
   final GetRecipes getRecipes;
   final GetType _getType = getIt<GetType>();
-  final AppLogger _logger = AppLogger(tag: 'HomeViewModel');
+  final AppLogger _logger = AppLogger(tag: 'RecipesViewModel');
 
   GetRecipesStatus _status = GetRecipesStatus.initial;
   GetRecipesStatus get status => _status;
 
-  GetHomeTypesStatus _getTypesStatus = GetHomeTypesStatus.initial;
-  GetHomeTypesStatus get getTypesStatus => _getTypesStatus;
+  GetRecipeTypesStatus _getTypesStatus = GetRecipeTypesStatus.initial;
+  GetRecipeTypesStatus get getTypesStatus => _getTypesStatus;
 
   List<RecipeData> _recipes = [];
   List<RecipeData> get recipes => _recipes;
@@ -44,7 +44,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchTypes() async {
-    _getTypesStatus = GetHomeTypesStatus.loading;
+    _getTypesStatus = GetRecipeTypesStatus.loading;
     notifyListeners();
 
     try {
@@ -52,12 +52,12 @@ class HomeViewModel extends ChangeNotifier {
       _types
         ..clear()
         ..addAll(response.data);
-      _getTypesStatus = GetHomeTypesStatus.success;
+      _getTypesStatus = GetRecipeTypesStatus.success;
       notifyListeners();
       _logger.d("Fetched ${response.data.length} recipe types");
     } catch (e) {
       _types.clear();
-      _getTypesStatus = GetHomeTypesStatus.failure;
+      _getTypesStatus = GetRecipeTypesStatus.failure;
       notifyListeners();
       _logger.e("Error fetching recipe types: $e");
     }

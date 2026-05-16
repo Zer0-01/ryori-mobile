@@ -8,7 +8,14 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: StartupSetup.page, initial: true, path: '/'),
     AutoRoute(page: LoginSetup.page, path: '/login'),
     AutoRoute(page: RegisterSetup.page, path: '/register'),
-    AutoRoute(page: HomeSetup.page, path: '/home'),
+    AutoRoute(
+      page: HomeSetup.page,
+      path: '/home',
+      children: [
+        AutoRoute(page: RecipesSetup.page, path: '', initial: true),
+        AutoRoute(page: ProfileSetup.page, path: 'profile'),
+      ],
+    ),
     AutoRoute(page: AddRecipeSetup.page, path: '/add-recipe'),
     AutoRoute(page: EditRecipeSetup.page, path: '/edit-recipe/:recipeId'),
     AutoRoute(page: RecipeDetailSetup.page, path: '/recipe-detail/:recipeId'),

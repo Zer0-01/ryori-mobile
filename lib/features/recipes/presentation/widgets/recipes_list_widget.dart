@@ -2,14 +2,14 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ryori/app/router/app_router.gr.dart';
-import 'package:ryori/features/home/presentation/viewmodels/home_view_model.dart';
+import 'package:ryori/features/recipes/presentation/viewmodels/recipes_view_model.dart';
 
 class RecipesListWidget extends StatelessWidget {
   const RecipesListWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<HomeViewModel>(
+    return Consumer<RecipesViewModel>(
       builder: (context, vm, child) {
         if (vm.status == GetRecipesStatus.loading ||
             vm.status == GetRecipesStatus.initial) {
@@ -186,7 +186,6 @@ class RecipesListWidget extends StatelessWidget {
                       padding: const EdgeInsets.all(18),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
-
                         children: [
                           Container(
                             width: 52,
@@ -262,9 +261,7 @@ class RecipesListWidget extends StatelessWidget {
                   ),
                 );
               },
-              separatorBuilder: (context, index) {
-                return const SizedBox(height: 12);
-              },
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemCount: vm.recipes.length,
             ),
           );
@@ -276,10 +273,21 @@ class RecipesListWidget extends StatelessWidget {
   }
 
   String _formatCreatedAt(DateTime createdAt) {
-    final year = createdAt.year.toString().padLeft(4, '0');
-    final month = createdAt.month.toString().padLeft(2, '0');
-    final day = createdAt.day.toString().padLeft(2, '0');
+    final monthNames = <String>[
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
 
-    return '$year-$month-$day';
+    return '${monthNames[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
   }
 }

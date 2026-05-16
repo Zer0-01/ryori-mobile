@@ -9,6 +9,7 @@
 5. Make sure changes have no or low potential for bugs and code smells.
 6. Prefer best practices and keep code maintainable, scalable, and readable.
 7. Must follow the project design token system.
+8. Do not replace DI-managed viewmodels, use cases, repositories, or data sources with manual instantiation as a workaround. If DI or code generation breaks, stop, explain the issue, and ask for approval before changing the dependency wiring approach.
 
 ## Execution Constraints
 1. Do not create tests unless explicitly requested.

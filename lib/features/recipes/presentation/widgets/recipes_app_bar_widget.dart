@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ryori/features/home/presentation/viewmodels/home_view_model.dart';
+import 'package:ryori/features/recipes/presentation/viewmodels/recipes_view_model.dart';
 
-class HomeAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBarWidget({super.key});
+class RecipesAppBarWidget extends StatelessWidget
+    implements PreferredSizeWidget {
+  const RecipesAppBarWidget({super.key});
 
   static const String _allTypesValue = '__all_types__';
 
@@ -12,7 +13,7 @@ class HomeAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<HomeViewModel>(
+    return Consumer<RecipesViewModel>(
       builder: (context, vm, child) {
         return AppBar(
           title: const Text("Ryori"),
@@ -37,7 +38,7 @@ class HomeAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   Future<void> _showTypePicker(
     BuildContext context,
-    HomeViewModel vm,
+    RecipesViewModel vm,
   ) async {
     final String? result = await showModalBottomSheet<String?>(
       showDragHandle: true,

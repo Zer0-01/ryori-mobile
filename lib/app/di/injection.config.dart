@@ -43,17 +43,6 @@ import 'package:ryori/features/editrecipe/domain/usecases/update_recipe.dart'
     as _i726;
 import 'package:ryori/features/editrecipe/presentation/viewmodels/edit_recipe_view_model.dart'
     as _i349;
-import 'package:ryori/features/home/data/datasources/home_local_data_source.dart'
-    as _i873;
-import 'package:ryori/features/home/data/datasources/home_remote_data_source.dart'
-    as _i645;
-import 'package:ryori/features/home/data/repositories/home_repository.dart'
-    as _i271;
-import 'package:ryori/features/home/domain/repositories/home_repository.dart'
-    as _i596;
-import 'package:ryori/features/home/domain/usecases/get_recipes.dart' as _i309;
-import 'package:ryori/features/home/presentation/viewmodels/home_view_model.dart'
-    as _i262;
 import 'package:ryori/features/login/data/repositories/login_repository.dart'
     as _i454;
 import 'package:ryori/features/login/domain/repositories/login_repository.dart'
@@ -73,6 +62,18 @@ import 'package:ryori/features/recipedetail/domain/usecases/get_recipe_detail.da
     as _i810;
 import 'package:ryori/features/recipedetail/presentation/viewmodels/recipe_detail_view_model.dart'
     as _i418;
+import 'package:ryori/features/recipes/data/datasources/recipes_query_local_data_source.dart'
+    as _i378;
+import 'package:ryori/features/recipes/data/datasources/recipes_remote_data_source.dart'
+    as _i377;
+import 'package:ryori/features/recipes/data/repositories/recipes_repository.dart'
+    as _i188;
+import 'package:ryori/features/recipes/domain/repositories/recipes_repository.dart'
+    as _i596;
+import 'package:ryori/features/recipes/domain/usecases/get_recipes.dart'
+    as _i1073;
+import 'package:ryori/features/recipes/presentation/viewmodels/recipes_view_model.dart'
+    as _i693;
 import 'package:ryori/features/register/data/repositories/register_repository.dart'
     as _i353;
 import 'package:ryori/features/register/domain/repositories/register_repository.dart'
@@ -98,8 +99,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1070.AppDatabase>(() => _i1070.AppDatabase());
     gh.lazySingleton<_i610.PickerService>(() => _i610.PickerService());
-    gh.lazySingleton<_i645.HomeRemoteDataSource>(
-      () => _i645.HomeRemoteDataSource(),
+    gh.lazySingleton<_i377.RecipesRemoteDataSource>(
+      () => _i377.RecipesRemoteDataSource(),
     );
     gh.lazySingleton<_i220.AppEnv>(
       () => _i711.LocalEnv(),
@@ -128,20 +129,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i0.EditRecipeLocalDataSource>(
       () => _i0.EditRecipeLocalDataSource(gh<_i1070.AppDatabase>()),
     );
-    gh.lazySingleton<_i873.HomeLocalDataSource>(
-      () => _i873.HomeLocalDataSource(gh<_i1070.AppDatabase>()),
-    );
     gh.lazySingleton<_i394.RecipeDetailLocalDataSource>(
       () => _i394.RecipeDetailLocalDataSource(gh<_i1070.AppDatabase>()),
     );
+    gh.lazySingleton<_i378.RecipesQueryLocalDataSource>(
+      () => _i378.RecipesQueryLocalDataSource(gh<_i1070.AppDatabase>()),
+    );
     gh.lazySingleton<_i691.EditRecipeRepository>(
       () => _i4.EditRecipeRepositoryImpl(gh<_i0.EditRecipeLocalDataSource>()),
-    );
-    gh.lazySingleton<_i596.HomeRepository>(
-      () => _i271.HomeRepositoryImpl(
-        gh<_i645.HomeRemoteDataSource>(),
-        gh<_i873.HomeLocalDataSource>(),
-      ),
     );
     gh.lazySingleton<_i286.LoginRepository>(
       () => _i454.LoginRepositoryImpl(gh<_i251.AuthRemoteDataSource>()),
@@ -165,6 +160,12 @@ extension GetItInjectableX on _i174.GetIt {
       ),
       instanceName: 'apiDio',
     );
+    gh.lazySingleton<_i596.RecipesRepository>(
+      () => _i188.RecipesRepositoryImpl(
+        gh<_i377.RecipesRemoteDataSource>(),
+        gh<_i378.RecipesQueryLocalDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i7.AddRecipeRepository>(
       () => _i564.AddRecipeRepositoryImpl(gh<_i918.AddRecipeLocalDataSource>()),
     );
@@ -174,11 +175,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i181.AuthTokenStorage>(),
       ),
     );
-    gh.factory<_i309.GetRecipes>(
-      () => _i309.GetRecipes(gh<_i596.HomeRepository>()),
-    );
     gh.factory<_i726.UpdateRecipe>(
       () => _i726.UpdateRecipe(gh<_i691.EditRecipeRepository>()),
+    );
+    gh.factory<_i1073.GetRecipes>(
+      () => _i1073.GetRecipes(gh<_i596.RecipesRepository>()),
     );
     gh.factory<_i847.PostRegister>(
       () => _i847.PostRegister(gh<_i964.RegisterRepository>()),
@@ -202,8 +203,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i535.PostRecipe>(
       () => _i535.PostRecipe(gh<_i7.AddRecipeRepository>()),
     );
-    gh.factory<_i262.HomeViewModel>(
-      () => _i262.HomeViewModel(gh<_i309.GetRecipes>()),
+    gh.factory<_i693.RecipesViewModel>(
+      () => _i693.RecipesViewModel(gh<_i1073.GetRecipes>()),
     );
     gh.factory<_i824.RegisterViewModel>(
       () => _i824.RegisterViewModel(gh<_i847.PostRegister>()),
