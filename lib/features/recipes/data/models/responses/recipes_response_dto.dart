@@ -15,6 +15,7 @@ class RecipeData {
   final String title;
   final String description;
   final String imageUrl;
+  final String type;
   final DateTime createdAt;
 
   const RecipeData({
@@ -22,6 +23,7 @@ class RecipeData {
     required this.title,
     required this.description,
     required this.imageUrl,
+    required this.type,
     required this.createdAt,
   });
 
@@ -31,6 +33,7 @@ class RecipeData {
       title: row.title,
       description: row.description,
       imageUrl: row.imageUrl,
+      type: row.type,
       createdAt: row.createdAt,
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ryori/features/addrecipe/data/models/responses/type_response_dto.dart';
 import 'package:ryori/features/addrecipe/presentation/viewmodels/add_recipe_view_model.dart';
 
 class RecipeTypeFormWidget extends StatelessWidget {
@@ -12,9 +11,15 @@ class RecipeTypeFormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AddRecipeViewModel>(
       builder: (context, vm, child) {
-        return TextFormField(
-          controller: controller,
-          readOnly: true,
+        final normalizedValue = controller.text.trim();
+        final selectedValue =
+            vm.types.any((type) => type.name == normalizedValue)
+                ? normalizedValue
+                : null;
+
+        return DropdownButtonFormField<String>(
+          initialValue: selectedValue,
+          isExpanded: true,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Type cannot be empty';
@@ -22,34 +27,21 @@ class RecipeTypeFormWidget extends StatelessWidget {
 
             return null;
           },
-          onTap: () async {
-            final TypeData? result = await showModalBottomSheet(
-              showDragHandle: true,
-              context: context,
-              builder: (context) {
-                return ListView.builder(
-                  itemCount: vm.types.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(vm.types[index].name),
-                      onTap: () {
-                        // Handle type selection
-                        Navigator.pop(context, vm.types[index]);
-                      },
-                    );
-                  },
-                );
-              },
-            );
-
-            if (result != null && context.mounted) {
-              controller.text = result.name;
-            }
+          items:
+              vm.types
+                  .map(
+                    (type) => DropdownMenuItem<String>(
+                      value: type.name,
+                      child: Text(type.name),
+                    ),
+                  )
+                  .toList(growable: false),
+          onChanged: (value) {
+            controller.text = value?.trim() ?? '';
           },
           decoration: const InputDecoration(
             labelText: 'Type',
             hintText: 'Select recipe type',
-            suffixIcon: Icon(Icons.keyboard_arrow_down_rounded),
           ),
         );
       },

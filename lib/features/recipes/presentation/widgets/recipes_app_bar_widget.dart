@@ -15,19 +15,54 @@ class RecipesAppBarWidget extends StatelessWidget
   Widget build(BuildContext context) {
     return Consumer<RecipesViewModel>(
       builder: (context, vm, child) {
+        final colorScheme = Theme.of(context).colorScheme;
+
         return AppBar(
           title: const Text("Ryori"),
           actions: [
-            IconButton(
-              onPressed: () => _showTypePicker(context, vm),
-              tooltip:
-                  vm.selectedType == null
-                      ? 'Filter by type'
-                      : 'Filter: ${vm.selectedType}',
-              icon: Badge.count(
-                isLabelVisible: vm.hasActiveTypeFilter,
-                count: 1,
-                child: const Icon(Icons.filter_list_rounded),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 12),
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: colorScheme.onSurface,
+                  backgroundColor:
+                      vm.hasActiveTypeFilter
+                          ? colorScheme.secondaryContainer
+                          : colorScheme.surfaceContainerHighest,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                onPressed: () => _showTypePicker(context, vm),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      vm.selectedType ?? 'All',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color:
+                            vm.hasActiveTypeFilter
+                                ? colorScheme.onSecondaryContainer
+                                : colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color:
+                          vm.hasActiveTypeFilter
+                              ? colorScheme.onSecondaryContainer
+                              : colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -184,76 +186,55 @@ class RecipesListWidget extends StatelessWidget {
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(18),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(
-                              Icons.restaurant_menu_rounded,
-                              color: colorScheme.primary,
-                              size: 24,
+                          _RecipeCardImage(imageUrl: recipe.imageUrl),
+                          const SizedBox(height: 16),
+                          Text(
+                            recipe.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.titleMedium?.copyWith(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  recipe.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.titleMedium?.copyWith(
-                                    color: colorScheme.onSurface,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  recipe.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                    height: 1.45,
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.secondaryContainer,
-                                        borderRadius: BorderRadius.circular(
-                                          999,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        _formatCreatedAt(recipe.createdAt),
-                                        style: textTheme.labelMedium?.copyWith(
-                                          color:
-                                              colorScheme.onSecondaryContainer,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                          const SizedBox(height: 8),
+                          Text(
+                            recipe.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              height: 1.45,
                             ),
+                          ),
+                          const SizedBox(height: 14),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _RecipeTypeBadge(type: recipe.type),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  _formatCreatedAt(recipe.createdAt),
+                                  style: textTheme.labelMedium?.copyWith(
+                                    color: colorScheme.onSecondaryContainer,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -271,23 +252,130 @@ class RecipesListWidget extends StatelessWidget {
       },
     );
   }
+}
 
-  String _formatCreatedAt(DateTime createdAt) {
-    final monthNames = <String>[
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+String _formatCreatedAt(DateTime createdAt) {
+  final monthNames = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
-    return '${monthNames[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
+  return '${monthNames[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
+}
+
+class _RecipeCardImage extends StatelessWidget {
+  const _RecipeCardImage({required this.imageUrl});
+
+  final String imageUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Image.file(
+          File(imageUrl),
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return const _RecipeCardImageFallback();
+          },
+        ),
+      ),
+    );
   }
+}
+
+class _RecipeCardImageFallback extends StatelessWidget {
+  const _RecipeCardImageFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+      ),
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 36,
+          color: colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
+
+class _RecipeTypeBadge extends StatelessWidget {
+  const _RecipeTypeBadge({required this.type});
+
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colors = _resolveTypeBadgeColors(Theme.of(context).colorScheme, type);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.backgroundColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        type,
+        style: textTheme.labelMedium?.copyWith(
+          color: colors.foregroundColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+_TypeBadgeColors _resolveTypeBadgeColors(ColorScheme colorScheme, String type) {
+  final normalizedType = type.trim().toLowerCase();
+  final palettes = <_TypeBadgeColors>[
+    _TypeBadgeColors(
+      backgroundColor: colorScheme.primaryContainer,
+      foregroundColor: colorScheme.onPrimaryContainer,
+    ),
+    _TypeBadgeColors(
+      backgroundColor: colorScheme.secondaryContainer,
+      foregroundColor: colorScheme.onSecondaryContainer,
+    ),
+    _TypeBadgeColors(
+      backgroundColor: colorScheme.tertiaryContainer,
+      foregroundColor: colorScheme.onTertiaryContainer,
+    ),
+    _TypeBadgeColors(
+      backgroundColor: colorScheme.errorContainer,
+      foregroundColor: colorScheme.onErrorContainer,
+    ),
+  ];
+
+  final paletteIndex = normalizedType.hashCode.abs() % palettes.length;
+  return palettes[paletteIndex];
+}
+
+class _TypeBadgeColors {
+  const _TypeBadgeColors({
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final Color backgroundColor;
+  final Color foregroundColor;
 }
