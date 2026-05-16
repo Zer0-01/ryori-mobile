@@ -1,6 +1,8 @@
+import 'package:injectable/injectable.dart';
 import 'package:ryori/core/env/app_env.dart';
 import 'package:ryori/core/env/local/env_local.dart';
 
+@LazySingleton(as: AppEnv, env: [AppEnvironment.local])
 class LocalEnv implements AppEnv {
   @override
   String get apiBaseUrl => EnvLocal.apiBaseUrl;

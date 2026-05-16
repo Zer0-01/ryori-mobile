@@ -1,8 +1,80 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ryori/core/utils/dialog_utils.dart';
+import 'package:ryori/core/utils/toast_utils.dart';
+import 'package:ryori/features/register/presentation/viewmodels/register_view_model.dart';
 
-class RegisterView extends StatelessWidget {
+class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final RegisterViewModel _vm;
+  PostRegisterStatus? _previousPostRegisterStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _vm = context.read<RegisterViewModel>();
+    _previousPostRegisterStatus = _vm.postRegisterStatus;
+    _vm.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    _vm.removeListener(_listener);
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _listener() {
+    final currentStatus = _vm.postRegisterStatus;
+    final statusChanged = _previousPostRegisterStatus != currentStatus;
+
+    if (!statusChanged) {
+      return;
+    }
+
+    _previousPostRegisterStatus = currentStatus;
+
+    if (currentStatus == PostRegisterStatus.loading) {
+      showLoadingDialog(context);
+      return;
+    }
+
+    if (currentStatus == PostRegisterStatus.success) {
+      Navigator.pop(context);
+      showSuccessToast(
+        context,
+        'Register Success',
+        'Your account has been created. Please login.',
+      );
+      context.router.maybePop();
+      return;
+    }
+
+    if (currentStatus == PostRegisterStatus.failure) {
+      Navigator.pop(context);
+      showErrorToast(
+        context,
+        'Register Failed',
+        'An error occurred while creating your account. Please try again.',
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,46 +110,75 @@ class RegisterView extends StatelessWidget {
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const TextField(
-                            textInputAction: TextInputAction.next,
-                            textCapitalization: TextCapitalization.words,
-                            decoration: InputDecoration(
-                              labelText: 'Name',
-                              hintText: 'Enter your name',
+                      child: Consumer<RegisterViewModel>(
+                        builder: (context, vm, child) {
+                          return Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                TextFormField(
+                                  controller: _nameController,
+                                  textInputAction: TextInputAction.next,
+                                  textCapitalization: TextCapitalization.words,
+                                  validator: _validateName,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Name',
+                                    hintText: 'Enter your name',
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  validator: _validateEmail,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Email',
+                                    hintText: 'Enter your email',
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  textInputAction: TextInputAction.done,
+                                  validator: _validatePassword,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Password',
+                                    hintText: 'Enter your password',
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                FilledButton(
+                                  onPressed:
+                                      vm.postRegisterStatus ==
+                                              PostRegisterStatus.loading
+                                          ? null
+                                          : _submit,
+                                  child:
+                                      vm.postRegisterStatus ==
+                                              PostRegisterStatus.loading
+                                          ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                          : const Text('Register'),
+                                ),
+                                const SizedBox(height: 12),
+                                TextButton(
+                                  onPressed: () => context.router.maybePop(),
+                                  child: const Text(
+                                    'Already have an account? Login',
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          const TextField(
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              hintText: 'Enter your email',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const TextField(
-                            obscureText: true,
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter your password',
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const FilledButton(
-                            onPressed: null,
-                            child: Text('Register'),
-                          ),
-                          const SizedBox(height: 12),
-                          TextButton(
-                            onPressed: () => context.router.maybePop(),
-                            child: const Text('Already have an account? Login'),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -88,5 +189,48 @@ class RegisterView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _submit() {
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) {
+      return;
+    }
+
+    _vm.register(
+      email: _emailController.text,
+      password: _passwordController.text,
+      name: _nameController.text,
+    );
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name cannot be empty';
+    }
+
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    final normalized = value?.trim() ?? '';
+    if (normalized.isEmpty) {
+      return 'Email cannot be empty';
+    }
+
+    final emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailPattern.hasMatch(normalized)) {
+      return 'Enter a valid email';
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Password cannot be empty';
+    }
+
+    return null;
   }
 }

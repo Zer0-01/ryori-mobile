@@ -9,9 +9,17 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:dio/dio.dart' as _i361;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:ryori/app/di/app_module.dart' as _i31;
+import 'package:ryori/core/auth/auth_token_storage.dart' as _i181;
+import 'package:ryori/core/auth/data/auth_remote_data_source.dart' as _i251;
 import 'package:ryori/core/database/app_database.dart' as _i1070;
+import 'package:ryori/core/env/app_env.dart' as _i220;
+import 'package:ryori/core/env/development/development_env.dart' as _i671;
+import 'package:ryori/core/env/local/local_env.dart' as _i711;
 import 'package:ryori/core/utils/picker_service.dart' as _i610;
 import 'package:ryori/features/addrecipe/data/datasources/add_recipe_local_data_source.dart'
     as _i918;
@@ -58,6 +66,17 @@ import 'package:ryori/features/recipedetail/domain/usecases/get_recipe_detail.da
     as _i810;
 import 'package:ryori/features/recipedetail/presentation/viewmodels/recipe_detail_view_model.dart'
     as _i418;
+import 'package:ryori/features/register/data/repositories/register_repository.dart'
+    as _i353;
+import 'package:ryori/features/register/domain/repositories/register_repository.dart'
+    as _i964;
+import 'package:ryori/features/register/domain/usecases/post_register.dart'
+    as _i847;
+import 'package:ryori/features/register/presentation/viewmodels/register_view_model.dart'
+    as _i824;
+
+const String _local = 'local';
+const String _development = 'development';
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -66,10 +85,35 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final appModule = _$AppModule();
+    gh.lazySingleton<_i558.FlutterSecureStorage>(
+      () => appModule.flutterSecureStorage,
+    );
     gh.lazySingleton<_i1070.AppDatabase>(() => _i1070.AppDatabase());
     gh.lazySingleton<_i610.PickerService>(() => _i610.PickerService());
     gh.lazySingleton<_i645.HomeRemoteDataSource>(
       () => _i645.HomeRemoteDataSource(),
+    );
+    gh.lazySingleton<_i220.AppEnv>(
+      () => _i711.LocalEnv(),
+      registerFor: {_local},
+    );
+    gh.lazySingleton<_i220.AppEnv>(
+      () => _i671.DevelopmentEnv(),
+      registerFor: {_development},
+    );
+    gh.lazySingleton<_i181.AuthTokenStorage>(
+      () => _i181.AuthTokenStorage(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i361.Dio>(
+      () => appModule.authDio(gh<_i220.AppEnv>()),
+      instanceName: 'authDio',
+    );
+    gh.lazySingleton<_i251.AuthRemoteDataSource>(
+      () => _i251.AuthRemoteDataSource(
+        dio: gh<_i361.Dio>(instanceName: 'authDio'),
+        appEnv: gh<_i220.AppEnv>(),
+      ),
     );
     gh.lazySingleton<_i918.AddRecipeLocalDataSource>(
       () => _i918.AddRecipeLocalDataSource(gh<_i1070.AppDatabase>()),
@@ -97,6 +141,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i394.RecipeDetailLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i964.RegisterRepository>(
+      () => _i353.RegisterRepositoryImpl(gh<_i251.AuthRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i361.Dio>(
+      () => appModule.apiDio(
+        gh<_i220.AppEnv>(),
+        gh<_i181.AuthTokenStorage>(),
+        gh<_i251.AuthRemoteDataSource>(),
+      ),
+      instanceName: 'apiDio',
+    );
     gh.lazySingleton<_i7.AddRecipeRepository>(
       () => _i564.AddRecipeRepositoryImpl(gh<_i918.AddRecipeLocalDataSource>()),
     );
@@ -105,6 +160,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i726.UpdateRecipe>(
       () => _i726.UpdateRecipe(gh<_i691.EditRecipeRepository>()),
+    );
+    gh.factory<_i847.PostRegister>(
+      () => _i847.PostRegister(gh<_i964.RegisterRepository>()),
     );
     gh.factory<_i19.DeleteRecipe>(
       () => _i19.DeleteRecipe(gh<_i139.RecipeDetailRepository>()),
@@ -128,6 +186,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i262.HomeViewModel>(
       () => _i262.HomeViewModel(gh<_i309.GetRecipes>()),
     );
+    gh.factory<_i824.RegisterViewModel>(
+      () => _i824.RegisterViewModel(gh<_i847.PostRegister>()),
+    );
     gh.factory<_i193.AddRecipeViewModel>(
       () => _i193.AddRecipeViewModel(
         gh<_i228.GetType>(),
@@ -147,3 +208,5 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$AppModule extends _i31.AppModule {}
