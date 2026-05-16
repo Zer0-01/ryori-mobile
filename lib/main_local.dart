@@ -5,6 +5,6 @@ import 'package:ryori/core/env/app_env.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configureDependencies(environment: AppEnvironment.development);
+  await configureDependencies(environment: AppEnvironment.local);
   runApp(App());
 }
