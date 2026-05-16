@@ -1,9 +1,78 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ryori/app/router/app_router.gr.dart';
+import 'package:ryori/core/utils/dialog_utils.dart';
+import 'package:ryori/core/utils/toast_utils.dart';
+import 'package:ryori/features/login/presentation/viewmodels/login_view_model.dart';
 
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final LoginViewModel _vm;
+  PostLoginStatus? _previousPostLoginStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _vm = context.read<LoginViewModel>();
+    _previousPostLoginStatus = _vm.postLoginStatus;
+    _vm.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    _vm.removeListener(_listener);
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _listener() {
+    final currentStatus = _vm.postLoginStatus;
+    final statusChanged = _previousPostLoginStatus != currentStatus;
+
+    if (!statusChanged) {
+      return;
+    }
+
+    _previousPostLoginStatus = currentStatus;
+
+    if (currentStatus == PostLoginStatus.loading) {
+      showLoadingDialog(context);
+      return;
+    }
+
+    if (currentStatus == PostLoginStatus.success) {
+      Navigator.pop(context);
+      showSuccessToast(
+        context,
+        'Login Success',
+        'Welcome back to Ryori.',
+      );
+      context.router.replace(const HomeSetup());
+      return;
+    }
+
+    if (currentStatus == PostLoginStatus.failure) {
+      Navigator.pop(context);
+      showErrorToast(
+        context,
+        'Login Failed',
+        'An error occurred while signing in. Please try again.',
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,47 +107,75 @@ class LoginView extends StatelessWidget {
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Login',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          const TextField(
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              hintText: 'Enter your email',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const TextField(
-                            obscureText: true,
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter your password',
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const FilledButton(
-                            onPressed: null,
-                            child: Text('Login'),
-                          ),
-                          const SizedBox(height: 12),
-                          TextButton(
-                            onPressed:
-                                () => context.router.push(
-                                  const RegisterSetup(),
+                      child: Consumer<LoginViewModel>(
+                        builder: (context, vm, child) {
+                          return Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Login',
+                                  style: theme.textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                            child: const Text("Don't have an account? Register"),
-                          ),
-                        ],
+                                const SizedBox(height: 20),
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  validator: _validateEmail,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Email',
+                                    hintText: 'Enter your email',
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  textInputAction: TextInputAction.done,
+                                  validator: _validatePassword,
+                                  onFieldSubmitted: (_) => _submit(),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Password',
+                                    hintText: 'Enter your password',
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                FilledButton(
+                                  onPressed:
+                                      vm.postLoginStatus ==
+                                              PostLoginStatus.loading
+                                          ? null
+                                          : _submit,
+                                  child:
+                                      vm.postLoginStatus ==
+                                              PostLoginStatus.loading
+                                          ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                          : const Text('Login'),
+                                ),
+                                const SizedBox(height: 12),
+                                TextButton(
+                                  onPressed:
+                                      () => context.router.push(
+                                        const RegisterSetup(),
+                                      ),
+                                  child: const Text(
+                                    "Don't have an account? Register",
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -89,5 +186,39 @@ class LoginView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _submit() {
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) {
+      return;
+    }
+
+    _vm.login(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+  }
+
+  String? _validateEmail(String? value) {
+    final normalized = value?.trim() ?? '';
+    if (normalized.isEmpty) {
+      return 'Email cannot be empty';
+    }
+
+    final emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailPattern.hasMatch(normalized)) {
+      return 'Enter a valid email';
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Password cannot be empty';
+    }
+
+    return null;
   }
 }

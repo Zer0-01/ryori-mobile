@@ -3,6 +3,8 @@ import 'package:injectable/injectable.dart';
 import 'package:ryori/core/auth/models/refresh_token_request_dto.dart';
 import 'package:ryori/core/auth/models/refresh_token_response_dto.dart';
 import 'package:ryori/core/env/app_env.dart';
+import 'package:ryori/features/login/data/models/requests/login_request_dto.dart';
+import 'package:ryori/features/login/data/models/responses/login_response_dto.dart';
 import 'package:ryori/features/register/data/models/requests/register_request_dto.dart';
 import 'package:ryori/features/register/data/models/responses/register_response_dto.dart';
 
@@ -16,6 +18,29 @@ class AuthRemoteDataSource {
 
   final Dio _dio;
   final AppEnv _appEnv;
+
+  Future<LoginResponseDto> login(LoginRequestDto request) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      _appEnv.authLoginEndpoint,
+      data: request.toJson(),
+      options: Options(
+        extra: const {
+          'requiresAuth': false,
+        },
+      ),
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        error: 'Login response body is empty.',
+      );
+    }
+
+    return LoginResponseDto.fromJson(data);
+  }
 
   Future<RegisterResponseDto> register(RegisterRequestDto request) async {
     final response = await _dio.post<Map<String, dynamic>>(

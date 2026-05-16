@@ -54,6 +54,13 @@ import 'package:ryori/features/home/domain/repositories/home_repository.dart'
 import 'package:ryori/features/home/domain/usecases/get_recipes.dart' as _i309;
 import 'package:ryori/features/home/presentation/viewmodels/home_view_model.dart'
     as _i262;
+import 'package:ryori/features/login/data/repositories/login_repository.dart'
+    as _i454;
+import 'package:ryori/features/login/domain/repositories/login_repository.dart'
+    as _i286;
+import 'package:ryori/features/login/domain/usecases/post_login.dart' as _i1071;
+import 'package:ryori/features/login/presentation/viewmodels/login_view_model.dart'
+    as _i883;
 import 'package:ryori/features/recipedetail/data/datasources/recipe_detail_local_data_source.dart'
     as _i394;
 import 'package:ryori/features/recipedetail/data/repositories/recipe_detail_repository.dart'
@@ -136,10 +143,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i873.HomeLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i286.LoginRepository>(
+      () => _i454.LoginRepositoryImpl(gh<_i251.AuthRemoteDataSource>()),
+    );
     gh.lazySingleton<_i139.RecipeDetailRepository>(
       () => _i358.RecipeDetailRepositoryImpl(
         gh<_i394.RecipeDetailLocalDataSource>(),
       ),
+    );
+    gh.factory<_i1071.PostLogin>(
+      () => _i1071.PostLogin(gh<_i286.LoginRepository>()),
     );
     gh.lazySingleton<_i964.RegisterRepository>(
       () => _i353.RegisterRepositoryImpl(gh<_i251.AuthRemoteDataSource>()),
@@ -154,6 +167,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i7.AddRecipeRepository>(
       () => _i564.AddRecipeRepositoryImpl(gh<_i918.AddRecipeLocalDataSource>()),
+    );
+    gh.factory<_i883.LoginViewModel>(
+      () => _i883.LoginViewModel(
+        gh<_i1071.PostLogin>(),
+        gh<_i181.AuthTokenStorage>(),
+      ),
     );
     gh.factory<_i309.GetRecipes>(
       () => _i309.GetRecipes(gh<_i596.HomeRepository>()),
