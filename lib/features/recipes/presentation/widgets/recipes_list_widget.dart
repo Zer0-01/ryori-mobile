@@ -216,7 +216,12 @@ class RecipesListWidget extends StatelessWidget {
                             runSpacing: 8,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              _RecipeTypeBadge(type: recipe.type),
+                              _RecipeTypeBadge(
+                                type: recipe.type,
+                                badgeColor: vm.resolveTypeBadgeColor(
+                                  recipe.type,
+                                ),
+                              ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
@@ -319,25 +324,36 @@ class _RecipeCardImageFallback extends StatelessWidget {
 }
 
 class _RecipeTypeBadge extends StatelessWidget {
-  const _RecipeTypeBadge({required this.type});
+  const _RecipeTypeBadge({
+    required this.type,
+    required this.badgeColor,
+  });
 
   final String type;
+  final String? badgeColor;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final colors = _resolveTypeBadgeColors(Theme.of(context).colorScheme, type);
+    final colorScheme = Theme.of(context).colorScheme;
+    final backgroundColor =
+        _parseBadgeColor(badgeColor) ?? colorScheme.primaryContainer;
+    final foregroundColor =
+        ThemeData.estimateBrightnessForColor(backgroundColor) ==
+                Brightness.dark
+            ? Colors.white
+            : Colors.black87;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: colors.backgroundColor,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         type,
         style: textTheme.labelMedium?.copyWith(
-          color: colors.foregroundColor,
+          color: foregroundColor,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -345,37 +361,25 @@ class _RecipeTypeBadge extends StatelessWidget {
   }
 }
 
-_TypeBadgeColors _resolveTypeBadgeColors(ColorScheme colorScheme, String type) {
-  final normalizedType = type.trim().toLowerCase();
-  final palettes = <_TypeBadgeColors>[
-    _TypeBadgeColors(
-      backgroundColor: colorScheme.primaryContainer,
-      foregroundColor: colorScheme.onPrimaryContainer,
-    ),
-    _TypeBadgeColors(
-      backgroundColor: colorScheme.secondaryContainer,
-      foregroundColor: colorScheme.onSecondaryContainer,
-    ),
-    _TypeBadgeColors(
-      backgroundColor: colorScheme.tertiaryContainer,
-      foregroundColor: colorScheme.onTertiaryContainer,
-    ),
-    _TypeBadgeColors(
-      backgroundColor: colorScheme.errorContainer,
-      foregroundColor: colorScheme.onErrorContainer,
-    ),
-  ];
+Color? _parseBadgeColor(String? value) {
+  final normalized = value?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return null;
+  }
 
-  final paletteIndex = normalizedType.hashCode.abs() % palettes.length;
-  return palettes[paletteIndex];
-}
+  final hex = normalized.startsWith('#') ? normalized.substring(1) : normalized;
+  if (hex.length != 6 && hex.length != 8) {
+    return null;
+  }
 
-class _TypeBadgeColors {
-  const _TypeBadgeColors({
-    required this.backgroundColor,
-    required this.foregroundColor,
-  });
+  final parsed = int.tryParse(
+    hex.length == 6 ? 'FF$hex' : hex,
+    radix: 16,
+  );
 
-  final Color backgroundColor;
-  final Color foregroundColor;
+  if (parsed == null) {
+    return null;
+  }
+
+  return Color(parsed);
 }

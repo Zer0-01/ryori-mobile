@@ -17,6 +17,7 @@ class RecipeStepsFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final resolvedErrorText = errorText;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -68,10 +69,10 @@ class RecipeStepsFormWidget extends StatelessWidget {
           ),
           if (index < controllers.length - 1) const SizedBox(height: 12),
         ],
-        if (errorText != null) ...[
+        if (resolvedErrorText != null) ...[
           const SizedBox(height: 8),
           Text(
-            errorText!,
+            resolvedErrorText,
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: colorScheme.error),

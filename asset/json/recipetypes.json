@@ -2,27 +2,33 @@
   "data": [
     {
       "id": 1,
-      "name": "Breakfast"
+      "name": "Breakfast",
+      "badgeColor": "#FFE4B5"
     },
     {
       "id": 2,
-      "name": "Lunch"
+      "name": "Lunch",
+      "badgeColor": "#FFD6A5"
     },
     {
       "id": 3,
-      "name": "Dinner"
+      "name": "Dinner",
+      "badgeColor": "#CDEAC0"
     },
     {
       "id": 4,
-      "name": "Dessert"
+      "name": "Dessert",
+      "badgeColor": "#F8C8DC"
     },
     {
       "id": 5,
-      "name": "Snack"
+      "name": "Snack",
+      "badgeColor": "#D4E4FF"
     },
     {
       "id": 6,
-      "name": "Beverage"
+      "name": "Beverage",
+      "badgeColor": "#D8C4F1"
     }
   ]
 }

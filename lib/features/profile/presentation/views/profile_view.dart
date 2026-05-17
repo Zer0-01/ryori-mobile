@@ -145,6 +145,11 @@ class _ProfileViewState extends State<ProfileView> {
             if (profile == null) {
               return const SizedBox.shrink();
             }
+            final normalizedName = profile.name?.trim();
+            final displayName =
+                normalizedName != null && normalizedName.isNotEmpty
+                    ? normalizedName
+                    : 'Ryori User';
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -175,9 +180,7 @@ class _ProfileViewState extends State<ProfileView> {
                               ),
                               const SizedBox(height: 20),
                               Text(
-                                profile.name?.trim().isNotEmpty == true
-                                    ? profile.name!.trim()
-                                    : 'Ryori User',
+                                displayName,
                                 style: theme.textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -192,10 +195,7 @@ class _ProfileViewState extends State<ProfileView> {
                               const SizedBox(height: 24),
                               _ProfileField(
                                 label: 'Name',
-                                value:
-                                    profile.name?.trim().isNotEmpty == true
-                                        ? profile.name!.trim()
-                                        : 'Ryori User',
+                                value: displayName,
                               ),
                               const SizedBox(height: 16),
                               _ProfileField(

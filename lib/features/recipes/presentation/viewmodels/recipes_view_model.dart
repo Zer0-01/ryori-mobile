@@ -35,8 +35,10 @@ class RecipesViewModel extends ChangeNotifier {
 
   String? _selectedType;
   String? get selectedType => _selectedType;
-  bool get hasActiveTypeFilter =>
-      _selectedType != null && _selectedType!.trim().isNotEmpty;
+  bool get hasActiveTypeFilter {
+    final selectedType = _selectedType;
+    return selectedType != null && selectedType.trim().isNotEmpty;
+  }
 
   Future<void> init() async {
     await fetchTypes();
@@ -84,6 +86,18 @@ class RecipesViewModel extends ChangeNotifier {
 
   Future<void> clearTypeFilter() async {
     await fetchRecipes(type: null);
+  }
+
+  String? resolveTypeBadgeColor(String typeName) {
+    final normalizedTypeName = typeName.trim().toLowerCase();
+
+    for (final type in _types) {
+      if (type.name.trim().toLowerCase() == normalizedTypeName) {
+        return type.badgeColor;
+      }
+    }
+
+    return null;
   }
 
   String? _normalizeOptionalType(String? value) {

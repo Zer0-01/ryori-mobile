@@ -2,17 +2,29 @@ import 'package:flutter/material.dart';
 
 class TypeWidget extends StatelessWidget {
   final String type;
+  final String? badgeColor;
 
-  const TypeWidget({super.key, required this.type});
+  const TypeWidget({
+    super.key,
+    required this.type,
+    this.badgeColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final backgroundColor =
+        _parseBadgeColor(badgeColor) ??
+        Theme.of(context).colorScheme.primaryContainer;
+    final foregroundColor =
+        ThemeData.estimateBrightnessForColor(backgroundColor) ==
+                Brightness.dark
+            ? Colors.white
+            : Colors.black87;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -21,7 +33,7 @@ class TypeWidget extends StatelessWidget {
           children: [
             Icon(
               Icons.category_outlined,
-              color: colorScheme.onPrimaryContainer,
+              color: foregroundColor,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -29,7 +41,7 @@ class TypeWidget extends StatelessWidget {
               child: Text(
                 type,
                 style: textTheme.titleSmall?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
+                  color: foregroundColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -39,4 +51,27 @@ class TypeWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+Color? _parseBadgeColor(String? value) {
+  final normalized = value?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return null;
+  }
+
+  final hex = normalized.startsWith('#') ? normalized.substring(1) : normalized;
+  if (hex.length != 6 && hex.length != 8) {
+    return null;
+  }
+
+  final parsed = int.tryParse(
+    hex.length == 6 ? 'FF$hex' : hex,
+    radix: 16,
+  );
+
+  if (parsed == null) {
+    return null;
+  }
+
+  return Color(parsed);
 }

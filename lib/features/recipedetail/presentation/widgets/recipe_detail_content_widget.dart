@@ -32,7 +32,8 @@ class RecipeDetailContentWidget extends StatelessWidget {
         }
 
         if (vm.getRecipeDetailStatus == GetRecipeDetailStatus.success) {
-          if (vm.recipeDetail == null) {
+          final recipe = vm.recipeDetail;
+          if (recipe == null) {
             return const SliverFillRemaining(
               hasScrollBody: false,
               child: Center(child: Text('Recipe not found')),
@@ -45,17 +46,20 @@ class RecipeDetailContentWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  RecipeImageWidget(imageUrl: vm.recipeDetail!.imageUrl),
+                  RecipeImageWidget(imageUrl: recipe.imageUrl),
                   const SizedBox(height: 20),
-                  TitleWidget(title: vm.recipeDetail!.title),
+                  TitleWidget(title: recipe.title),
                   const SizedBox(height: 16),
-                  TypeWidget(type: vm.recipeDetail!.type),
+                  TypeWidget(
+                    type: recipe.type,
+                    badgeColor: vm.resolveTypeBadgeColor(recipe.type),
+                  ),
                   const SizedBox(height: 16),
-                  DescriptionWidget(description: vm.recipeDetail!.description),
+                  DescriptionWidget(description: recipe.description),
                   const SizedBox(height: 16),
-                  IngredientsWidget(ingredients: vm.recipeDetail!.ingredients),
+                  IngredientsWidget(ingredients: recipe.ingredients),
                   const SizedBox(height: 16),
-                  StepsWidget(steps: vm.recipeDetail!.steps),
+                  StepsWidget(steps: recipe.steps),
                   const SizedBox(height: 24),
                   const DeleteRecipeButtonWidget(),
                 ],

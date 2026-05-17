@@ -16,6 +16,10 @@ class EditMediaPickerWidget extends StatelessWidget {
 
     return Consumer<EditRecipeViewModel>(
       builder: (context, vm, child) {
+        final selectedMediaPath = vm.selectedMediaPath;
+        final selectedMediaName = vm.selectedMediaName;
+        final resolvedErrorText = errorText;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -31,7 +35,7 @@ class EditMediaPickerWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _MediaPreview(
-                                  path: vm.selectedMediaPath!,
+                                  path: selectedMediaPath ?? '',
                                   isImage: vm.isSelectedMediaImage,
                                 ),
                                 const SizedBox(width: 12),
@@ -46,7 +50,7 @@ class EditMediaPickerWidget extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        vm.selectedMediaName!,
+                                        selectedMediaName ?? '',
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                         style: theme.textTheme.bodyMedium,
@@ -103,10 +107,10 @@ class EditMediaPickerWidget extends StatelessWidget {
                         ),
                       ),
             ),
-            if (errorText != null) ...[
+            if (resolvedErrorText != null) ...[
               const SizedBox(height: 8),
               Text(
-                errorText!,
+                resolvedErrorText,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.error,
                 ),

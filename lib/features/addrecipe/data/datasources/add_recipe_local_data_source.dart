@@ -26,6 +26,7 @@ class AddRecipeLocalDataSource {
                 (item) => TypeData(
                   id: item['id'] as int,
                   name: item['name'] as String,
+                  badgeColor: item['badgeColor'] as String,
                 ),
               )
               .toList(),
