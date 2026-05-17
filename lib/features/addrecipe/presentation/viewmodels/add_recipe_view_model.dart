@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ryori/core/logger/app_logger.dart';
@@ -133,7 +134,10 @@ class AddRecipeViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final selectedFiles = await pickerService.pickFiles(allowMultiple: false);
+      final selectedFiles = await pickerService.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
       if (selectedFiles.isEmpty) {
         _mediaPickerStatus = MediaPickerStatus.success;
         notifyListeners();
@@ -147,13 +151,13 @@ class AddRecipeViewModel extends ChangeNotifier {
       notifyListeners();
     } catch (error, stackTrace) {
       _logger.e(
-        'Error picking media from file picker.',
+        'Error picking image from file picker.',
         error: error,
         stackTrace: stackTrace,
       );
       _mediaPickerStatus = MediaPickerStatus.failure;
       _mediaPickerErrorMessage =
-          'An error occurred while picking the file. Please try again.';
+          'An error occurred while picking the image. Please try again.';
       notifyListeners();
     }
   }

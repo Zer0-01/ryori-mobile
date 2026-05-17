@@ -5,7 +5,10 @@ void showLoadingDialog(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (_) {
-      return const Center(child: CircularProgressIndicator());
+      return const PopScope(
+        canPop: false,
+        child: Center(child: CircularProgressIndicator()),
+      );
     },
   );
 }

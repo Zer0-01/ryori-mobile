@@ -55,11 +55,7 @@ class _LoginViewState extends State<LoginView> {
 
     if (currentStatus == PostLoginStatus.success) {
       Navigator.pop(context);
-      showSuccessToast(
-        context,
-        'Login Success',
-        'Welcome back to Ryori.',
-      );
+      showSuccessToast(context, 'Login Success', 'Welcome back to Ryori.');
       context.router.replace(const HomeSetup());
       return;
     }
@@ -116,9 +112,8 @@ class _LoginViewState extends State<LoginView> {
                               children: [
                                 Text(
                                   'Login',
-                                  style: theme.textTheme.headlineSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 20),
                                 TextFormField(
@@ -145,22 +140,8 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                                 const SizedBox(height: 24),
                                 FilledButton(
-                                  onPressed:
-                                      vm.postLoginStatus ==
-                                              PostLoginStatus.loading
-                                          ? null
-                                          : _submit,
-                                  child:
-                                      vm.postLoginStatus ==
-                                              PostLoginStatus.loading
-                                          ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                          : const Text('Login'),
+                                  onPressed: _submit,
+                                  child: const Text('Login'),
                                 ),
                                 const SizedBox(height: 12),
                                 TextButton(
@@ -194,10 +175,7 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    _vm.login(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+    _vm.login(email: _emailController.text, password: _passwordController.text);
   }
 
   String? _validateEmail(String? value) {

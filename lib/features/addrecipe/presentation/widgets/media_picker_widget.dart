@@ -94,7 +94,7 @@ class MediaPickerWidget extends StatelessWidget {
                         ),
                         title: const Text('Recipe Media'),
                         subtitle: const Text(
-                          'Tap to choose an image from gallery or a file',
+                          'Tap to choose an image from gallery or files',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -137,7 +137,7 @@ class MediaPickerWidget extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.attach_file_rounded),
-                title: const Text('Pick a File'),
+                title: const Text('Pick an Image File'),
                 onTap: () {
                   Navigator.of(context).pop('file');
                 },

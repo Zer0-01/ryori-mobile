@@ -151,22 +151,8 @@ class _RegisterViewState extends State<RegisterView> {
                                 ),
                                 const SizedBox(height: 24),
                                 FilledButton(
-                                  onPressed:
-                                      vm.postRegisterStatus ==
-                                              PostRegisterStatus.loading
-                                          ? null
-                                          : _submit,
-                                  child:
-                                      vm.postRegisterStatus ==
-                                              PostRegisterStatus.loading
-                                          ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                          : const Text('Register'),
+                                  onPressed: _submit,
+                                  child: const Text('Register'),
                                 ),
                                 const SizedBox(height: 12),
                                 TextButton(

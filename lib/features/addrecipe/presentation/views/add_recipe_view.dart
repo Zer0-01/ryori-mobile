@@ -106,16 +106,6 @@ class _AddRecipeViewState extends State<AddRecipeView> {
         return;
       }
     }
-
-    if (mediaStatusChanged &&
-        currentMediaPickerStatus == MediaPickerStatus.failure &&
-        _vm.mediaPickerErrorMessage != null) {
-      showErrorToast(
-        context,
-        "Failed to Pick File",
-        _vm.mediaPickerErrorMessage!,
-      );
-    }
   }
 
   @override
