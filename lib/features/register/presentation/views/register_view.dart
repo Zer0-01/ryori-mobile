@@ -18,6 +18,7 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
   late final RegisterViewModel _vm;
+  bool _isPasswordObscured = true;
   PostRegisterStatus? _previousPostRegisterStatus;
 
   @override
@@ -141,12 +142,25 @@ class _RegisterViewState extends State<RegisterView> {
                                 const SizedBox(height: 16),
                                 TextFormField(
                                   controller: _passwordController,
-                                  obscureText: true,
+                                  obscureText: _isPasswordObscured,
                                   textInputAction: TextInputAction.done,
                                   validator: _validatePassword,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'Password',
                                     hintText: 'Enter your password',
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isPasswordObscured =
+                                              !_isPasswordObscured;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        _isPasswordObscured
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 24),

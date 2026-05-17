@@ -14,7 +14,7 @@ class App extends StatelessWidget {
     return AdaptiveTheme(
       light: AppTheme.light,
       dark: AppTheme.dark,
-      initial: AdaptiveThemeMode.system,
+      initial: AdaptiveThemeMode.light,
       builder: (theme, darkTheme) {
         return MaterialApp.router(
           routerConfig: _appRouter.config(
