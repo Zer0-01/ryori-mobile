@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ryori/core/database/app_database.dart';
 import 'package:ryori/features/recipes/data/models/responses/recipes_response_dto.dart';
@@ -15,6 +16,11 @@ class RecipesQueryLocalDataSource {
     if (normalizedType != null && normalizedType.isNotEmpty) {
       query.where((recipe) => recipe.type.equals(normalizedType));
     }
+
+    query.orderBy([
+      (recipe) =>
+          OrderingTerm(expression: recipe.createdAt, mode: OrderingMode.desc),
+    ]);
 
     final rows = await query.get();
     final recipes = rows.map(RecipeData.fromRecipeRow).toList();
