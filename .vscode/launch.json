@@ -12,6 +12,20 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_development.dart"
+    },
+    {
+      "name": "local release",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_local.dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "development release",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "flutterMode": "release"
     }
   ]
 }
